@@ -23,7 +23,18 @@ const Rounds: React.FC = () => {
       .then((res) => res.json())
       .then((data) => setRounds(data))
       .catch((err) => console.error("Error fetching rounds", err));
-  });
+  }, []);
+
+  const handleDelete = (id: number) => {
+    fetch(`${apiUrl}/api/rounds/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }).then((res) => {
+      if (!res.ok) throw new Error("Failed to delete");
+    });
+  };
 
   return (
     <div>
@@ -38,6 +49,8 @@ const Rounds: React.FC = () => {
             {round.weather.windSpeedMph} mph wind
             <br />
             Players: {round.players.join(", ")}
+            <br />
+            <button onClick={() => handleDelete(round.id)}>Delete</button>
             <hr />
           </li>
         ))}
