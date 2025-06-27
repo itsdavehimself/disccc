@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using server.Data;
 using server.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("api/[controller]")]
 public class RoundsController : ControllerBase
@@ -14,26 +16,11 @@ public class RoundsController : ControllerBase
   {
     _db = db;
   }
-  
+
   [HttpGet]
   public IActionResult GetRounds()
   {
-    var rounds = new[] {
-      new {
-        Id = 1,
-        Course = "Fairfield",
-        Date = "2025-06-25",
-        Weather = "Sunny",
-        Players = new[] {"Dave", "Ben"}
-      },
-      new {
-        Id = 2,
-        Course = "Willow Stream",
-        Date = "2025-06-26",
-        Weather = "Rainy",
-        Players = new[] {"Jess", "Kyle"}
-      },
-    };
+    var rounds = _db.Rounds.ToList();
 
     return Ok(rounds);
   }
@@ -45,5 +32,21 @@ public class RoundsController : ControllerBase
     _db.SaveChanges();
 
     return CreatedAtAction(nameof(GetRounds), new { id = round.Id }, round);
+  }
+
+  [HttpDelete("{id}")]
+  public IActionResult DeleteRound(int id)
+  {
+    var round = _db.Rounds.Find(id);
+
+    if (round == null)
+    {
+      return NotFound();
+    }
+
+    _db.Rounds.Remove(round);
+    _db.SaveChanges();
+
+    return NoContent();
   }
 }

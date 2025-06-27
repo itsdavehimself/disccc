@@ -12,22 +12,25 @@ public class AppDbContext : DbContext
 
   public DbSet<Round> Rounds => Set<Round>();
 
-protected override void OnModelCreating(ModelBuilder modelBuilder)
-{
-    var playersConverter = new ValueConverter<List<string>, string>(
-        v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-        v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new());
+    public DbSet<User> Users => Set<User>();
 
-    var weatherConverter = new ValueConverter<WeatherInfo, string>(
-        v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
-        v => JsonSerializer.Deserialize<WeatherInfo>(v, (JsonSerializerOptions)null) ?? new());
 
-    modelBuilder.Entity<Round>()
-        .Property(r => r.Players)
-        .HasConversion(playersConverter);
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        var playersConverter = new ValueConverter<List<string>, string>(
+            v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+            v => JsonSerializer.Deserialize<List<string>>(v, (JsonSerializerOptions)null) ?? new());
 
-    modelBuilder.Entity<Round>()
-        .Property(r => r.Weather)
-        .HasConversion(weatherConverter);
-}
+        var weatherConverter = new ValueConverter<WeatherInfo, string>(
+            v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
+            v => JsonSerializer.Deserialize<WeatherInfo>(v, (JsonSerializerOptions)null) ?? new());
+
+        modelBuilder.Entity<Round>()
+            .Property(r => r.Players)
+            .HasConversion(playersConverter);
+
+        modelBuilder.Entity<Round>()
+            .Property(r => r.Weather)
+            .HasConversion(weatherConverter);
+    }
 }
