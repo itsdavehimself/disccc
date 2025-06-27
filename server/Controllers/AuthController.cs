@@ -32,10 +32,16 @@ public class AuthController : ControllerBase
         if (await _userManager.FindByNameAsync(request.Username) is not null)
             return BadRequest("Username already in use");
 
+        string tempUsername;
+        do
+        {
+            tempUsername = GenerateTempUsername(request.Email);
+        } while (await _userManager.FindByNameAsync(tempUsername) is not null);
+
         var user = new User
         {
-            UserName = request.Username,
             Email = request.Email,
+            UserName = tempUsername,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -83,5 +89,16 @@ public class AuthController : ControllerBase
             signingCredentials: creds);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
+    private string GenerateTempUsername(string email)
+    {
+        var basePart = email.Split('@')[0];
+        basePart = new string(basePart.Take(6).ToArray());
+
+        var random = new Random();
+        var randomDigits = random.Next(10000, 99999);
+
+        return $"{basePart}{randomDigits}";
     }
 }
