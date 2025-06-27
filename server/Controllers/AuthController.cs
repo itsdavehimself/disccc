@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using server.Data;
 using server.Models;
 using server.DTOs;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,86 +14,74 @@ namespace server.Controllers;
 [Route("api/[controller]")]
 public class AuthController : ControllerBase
 {
-  private readonly AppDbContext _db;
-  private readonly IConfiguration _config;
+    private readonly UserManager<User> _userManager;
+    private readonly IConfiguration _config;
 
-  public AuthController(AppDbContext db, IConfiguration config)
-  {
-    _db = db;
-    _config = config;
-  }
-
-  [HttpPost("register")]
-  public async Task<IActionResult> Register(UserDto request)
-  {
-    if (await _db.Users.AnyAsync(u => u.Email == request.Email))
-      return BadRequest("Email already in use");
-
-    if (await _db.Users.AnyAsync(u => u.Username == request.Username))
-      return BadRequest("Username already in use");
-
-    CreatePasswordHash(request.Password, out byte[] hash, out byte[] salt);
-
-    var user = new User
+    public AuthController(UserManager<User> userManager, IConfiguration config)
     {
-      Email = request.Email,
-      Username = request.Username,
-      PasswordHash = hash,
-      PasswordSalt = salt,
-    };
+        _userManager = userManager;
+        _config = config;
+    }
 
-    _db.Users.Add(user);
-    await _db.SaveChangesAsync();
-
-    return Ok(new { message = "User created" });
-  }
-
-  private void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)
-  {
-    using var hmac = new System.Security.Cryptography.HMACSHA256();
-    salt = hmac.Key;
-    hash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-  }
-
-  [HttpPost("login")]
-  public async Task<IActionResult> Login(LoginDto request)
-  {
-    var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
-    if (user == null)
-      return BadRequest("User not found");
-
-    if (!VerifyPasswordHash(request.Password, user.PasswordHash!, user.PasswordSalt!))
-      return BadRequest("Wrong password");
-
-    string token = CreateToken(user);
-
-    return Ok(new { token });
-  }
-
-  private bool VerifyPasswordHash(string password, byte[] storedHash, byte[] storedSalt)
-  {
-    using var hmac = new System.Security.Cryptography.HMACSHA256(storedSalt);
-    var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
-    return computedHash.SequenceEqual(storedHash);
-  }
-
-  private string CreateToken(User user)
-  {
-    var claims = new[]
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(UserDto request)
     {
-      new Claim(ClaimTypes.Name, user.Username),
-      new Claim(ClaimTypes.Email, user.Email),
-      new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())
-    };
+        if (await _userManager.FindByEmailAsync(request.Email) is not null)
+            return BadRequest("Email already in use");
 
-    var key = new SymmetricSecurityKey(
-      Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
-    );
+        if (await _userManager.FindByNameAsync(request.Username) is not null)
+            return BadRequest("Username already in use");
 
-    var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var user = new User
+        {
+            UserName = request.Username,
+            Email = request.Email,
+            CreatedAt = DateTime.UtcNow
+        };
 
-    var token = new JwtSecurityToken(claims: claims, expires: DateTime.UtcNow.AddDays(7), signingCredentials: creds);
+        var result = await _userManager.CreateAsync(user, request.Password);
 
-    return new JwtSecurityTokenHandler().WriteToken(token);
-  }
+        if (!result.Succeeded)
+            return BadRequest(result.Errors.Select(e => e.Description));
+
+        return Ok(new { message = "User created" });
+    }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login(LoginDto request)
+    {
+        var user = await _userManager.FindByEmailAsync(request.Email);
+        if (user == null)
+            return BadRequest("Invalid credentials");
+
+        var isValid = await _userManager.CheckPasswordAsync(user, request.Password);
+        if (!isValid)
+            return BadRequest("Invalid credentials");
+
+        string token = CreateToken(user);
+        return Ok(new { token });
+    }
+
+    private string CreateToken(User user)
+    {
+        var claims = new[]
+        {
+            new Claim(ClaimTypes.Name, user.UserName!),
+            new Claim(ClaimTypes.Email, user.Email!),
+            new Claim(ClaimTypes.NameIdentifier, user.Id)
+        };
+
+        var key = new SymmetricSecurityKey(
+            Encoding.UTF8.GetBytes(_config["Jwt:Key"]!)
+        );
+
+        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var token = new JwtSecurityToken(
+            claims: claims,
+            expires: DateTime.UtcNow.AddDays(7),
+            signingCredentials: creds);
+
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
 }

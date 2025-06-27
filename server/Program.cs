@@ -4,11 +4,45 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using server.Models;
+using Microsoft.AspNetCore.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite("Data Source=disccc.db"));
+
+builder.Services.AddIdentityCore<User>(opts =>
+{
+    opts.Password.RequireDigit = true;
+    opts.Password.RequireNonAlphanumeric = true;
+    opts.Password.RequiredLength = 8;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireLowercase = true;
+})
+.AddEntityFrameworkStores<AppDbContext>();
+
+builder.Services.AddScoped<UserManager<User>>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = false,
+            ValidateAudience = false,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
+            )
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
@@ -17,7 +51,7 @@ builder.Services.AddSwaggerGen(c =>
     c.AddSecurityDefinition("Bearer", new()
     {
         Name = "Authorization",
-         Type = SecuritySchemeType.Http,
+        Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
@@ -39,23 +73,6 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.AddCors();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-  .AddJwtBearer(options => {
-    options.TokenValidationParameters = new TokenValidationParameters {
-      ValidateIssuer = false,
-      ValidateAudience = false,
-      ValidateLifetime = true,
-      ValidateIssuerSigningKey = true,
-      IssuerSigningKey = new SymmetricSecurityKey(
-        Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!)
-      )
-    };
-  });
-builder.Services.AddAuthorization();
-builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=disccc.db"));
 
 var app = builder.Build();
 
