@@ -4,5 +4,6 @@ using Microsoft.AspNetCore.Identity;
 public class User : IdentityUser
 {
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+  public bool firstSignIn { get; set; } = true;
 }
 
