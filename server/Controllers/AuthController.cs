@@ -78,6 +78,7 @@ public class AuthController : ControllerBase
         if (user.firstSignIn)
         {
             user.firstSignIn = false;
+            await _userManager.UpdateAsync(user);
         }
 
         string token = CreateToken(user);
