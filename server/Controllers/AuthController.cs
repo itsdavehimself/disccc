@@ -97,6 +97,33 @@ public class AuthController : ControllerBase
         });
     }
 
+    [HttpPatch("update-username")]
+    public async Task<IActionResult> Update(UpdateUserNameDto request)
+    {
+        var token = Request.Cookies["access_token"];
+        if (token is null) return Unauthorized();
+
+        var principal = ValidateToken(token);
+        if (principal is null) return Unauthorized();
+
+        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
+        if (email is null) return Unauthorized();
+
+        var existingUser = await _userManager.FindByNameAsync(request.Username);
+        if (existingUser != null) return BadRequest(new { message = "Username is already in use" });
+
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user is null) return Unauthorized();
+
+        user.UserName = request.Username;
+        await _userManager.UpdateAsync(user);
+
+        return Ok(new
+        {
+            message = "Username updated"
+        });
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> Me()
     {
