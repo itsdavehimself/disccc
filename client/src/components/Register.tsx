@@ -5,6 +5,7 @@ import { useNavigate } from "react-router";
 import { useAppDispatch } from "../app/hooks";
 import { fetchUser } from "../app/slices/authSlice";
 import { Link } from "react-router";
+import ValidatedInput from "./ValidatedInput";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -88,33 +89,20 @@ const Register: React.FC = () => {
         className="flex flex-col justify-center items-center w-full gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col w-full">
-          <input
-            {...register("email", { required: "Please enter your email" })}
-            className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
-    ${
-      errors.email
-        ? "outline-error-red"
-        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
-    }`}
-            placeholder="Email"
-          />
-        </div>
-        <div className="flex flex-col w-full">
-          <input
-            type="password"
-            {...register("password", {
-              required: "Please enter your password",
-            })}
-            className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
-    ${
-      errors.password
-        ? "outline-error-red"
-        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
-    }`}
-            placeholder="Password"
-          />
-        </div>
+        <ValidatedInput
+          register={register("email", { required: "Please enter your email" })}
+          error={errors.email}
+          placeholder="Email"
+          type="email"
+        />
+        <ValidatedInput
+          register={register("password", {
+            required: "Please enter your password",
+          })}
+          error={errors.password}
+          placeholder="Password"
+          type="password"
+        />
         <div className="self-start min-h-5 text-error-red text-sm">
           {error === "Invalid credentials" ? (
             <p>Something doesn't look right. Check your credentials.</p>

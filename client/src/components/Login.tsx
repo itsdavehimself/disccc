@@ -5,6 +5,8 @@ import { useAppDispatch } from "../app/hooks";
 import { useNavigate } from "react-router";
 import { fetchUser } from "../app/slices/authSlice";
 import { Link } from "react-router";
+import SubmitButton from "./SubmitButton";
+import ValidatedInput from "./ValidatedInput";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -86,31 +88,20 @@ const Login: React.FC = () => {
         className="flex flex-col justify-center items-center w-full gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <input
-          {...register("email", { required: "Please enter your email" })}
-          className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
-    ${
-      errors.email
-        ? "outline-error-red"
-        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
-    }`}
+        <ValidatedInput
+          register={register("email", { required: "Please enter your email" })}
+          error={errors.email}
           placeholder="Email"
+          type="email"
         />
-        <div className="flex flex-col w-full">
-          <input
-            type="password"
-            {...register("password", {
-              required: "Please enter your password",
-            })}
-            className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
-    ${
-      errors.password
-        ? "outline-error-red"
-        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
-    }`}
-            placeholder="Password"
-          />
-        </div>
+        <ValidatedInput
+          register={register("password", {
+            required: "Please enter your password",
+          })}
+          error={errors.password}
+          placeholder="Password"
+          type="password"
+        />
         <div className="self-start min-h-5 text-error-red text-sm">
           {error === "Invalid credentials" ? (
             <p>Something doesn't look right. Check your credentials.</p>
@@ -126,12 +117,7 @@ const Login: React.FC = () => {
             <p>{errors.password.message}</p>
           ) : null}
         </div>
-        <button
-          type="submit"
-          className="bg-primary text-white w-full rounded-lg h-10 font-bold hover:cursor-pointer hover:bg-hover transition-all duration-200"
-        >
-          Sign In
-        </button>
+        <SubmitButton label="Sign in" />
         <Link to="/forgot" className="text-sm hover:cursor-pointer py-2 px-2">
           Forgot password?
         </Link>
