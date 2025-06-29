@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { useAppDispatch } from "../app/hooks";
 import { useNavigate } from "react-router";
 import { fetchUser } from "../app/slices/authSlice";
-import { useEffect } from "react";
+import { Link } from "react-router";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -57,6 +57,7 @@ const Login: React.FC = () => {
         return;
       }
 
+      setError(null);
       await dispatch(fetchUser());
       navigate("/dashboard");
     } catch (err) {
@@ -74,38 +75,51 @@ const Login: React.FC = () => {
     <div className="flex flex-col h-screen w-screen bg-white justify-center items-center px-10 gap-10">
       <div className="flex flex-col gap-6">
         <h1 className="self-start text-6xl font-bold text-text">
-          You handle the putts.
+          Welcome back
         </h1>
-        <div className="flex flex-col text-lg">
-          <p>
-            We'll handle the group chat, the forecast, and your flaky cousin.
-          </p>
+        <div className="flex flex-col">
+          <p>We'll handle the scheduling.</p>
+          <p>You just keep hitting first available.</p>
         </div>
       </div>
       <form
         className="flex flex-col justify-center items-center w-full gap-4"
         onSubmit={handleSubmit(onSubmit)}
       >
-        <div className="flex flex-col w-full">
-          <input
-            {...register("email", { required: "Please enter your email" })}
-            className="outline-1 outline-gray-200 w-full rounded-lg h-10 pl-2"
-            placeholder="Email"
-          />
-        </div>
+        <input
+          {...register("email", { required: "Please enter your email" })}
+          className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
+    ${
+      errors.email
+        ? "outline-error-red"
+        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
+    }`}
+          placeholder="Email"
+        />
         <div className="flex flex-col w-full">
           <input
             type="password"
             {...register("password", {
               required: "Please enter your password",
             })}
-            className="outline-1 outline-gray-200 w-full rounded-lg h-10 pl-2"
+            className={`outline-1 w-full rounded-lg h-10 pl-2 transition-all duration-200
+    ${
+      errors.password
+        ? "outline-error-red"
+        : "outline-gray-200 hover:outline-black focus:outline-1 focus:outline-primary"
+    }`}
             placeholder="Password"
           />
         </div>
-        <div className="self-start h-5 text-error-red text-sm">
+        <div className="self-start min-h-5 text-error-red text-sm">
           {error === "Invalid credentials" ? (
             <p>Something doesn't look right. Check your credentials.</p>
+          ) : error ? (
+            <div className="self-start text-error-red text-sm space-y-1">
+              {error.split(",").map((msg, idx) => (
+                <p key={idx}>{msg.trim()}</p>
+              ))}
+            </div>
           ) : errors.email?.message ? (
             <p>{errors.email.message}</p>
           ) : errors.password?.message ? (
@@ -118,9 +132,9 @@ const Login: React.FC = () => {
         >
           Sign In
         </button>
-        <button className="text-sm hover:cursor-pointer py-2 px-2">
+        <Link to="/forgot" className="text-sm hover:cursor-pointer py-2 px-2">
           Forgot password?
-        </button>
+        </Link>
       </form>
     </div>
   );
