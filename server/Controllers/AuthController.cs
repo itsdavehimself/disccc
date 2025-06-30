@@ -97,84 +97,11 @@ public class AuthController : ControllerBase
         });
     }
 
-    [HttpPatch("update-username")]
-    public async Task<IActionResult> Update(UpdateUserNameDto request)
-    {
-        var token = Request.Cookies["access_token"];
-        if (token is null) return Unauthorized();
-
-        var principal = ValidateToken(token);
-        if (principal is null) return Unauthorized();
-
-        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
-        if (email is null) return Unauthorized();
-
-        var existingUser = await _userManager.FindByNameAsync(request.Username);
-        if (existingUser != null) return BadRequest(new { message = "Username is already in use" });
-
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user is null) return Unauthorized();
-
-        user.UserName = request.Username;
-        await _userManager.UpdateAsync(user);
-
-        return Ok(new
-        {
-            message = "Username updated"
-        });
-    }
-
-    [HttpGet("me")]
-    public async Task<IActionResult> Me()
-    {
-        var token = Request.Cookies["access_token"];
-        if (token is null) return Unauthorized();
-
-        var principal = ValidateToken(token);
-        if (principal is null) return Unauthorized();
-
-        var email = principal.FindFirst(ClaimTypes.Email)?.Value;
-        if (email is null) return Unauthorized();
-
-        var username = principal.FindFirst(ClaimTypes.Name)?.Value;
-        if (username is null) return Unauthorized();
-
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user is null) return Unauthorized();
-
-        return Ok(new
-        {
-            email = user.Email,
-            username = user.UserName,
-            user.firstSignIn
-        });
-    }
-
     [HttpPost("logout")]
     public IActionResult Logout()
     {
         Response.Cookies.Delete("access_token");
         return Ok(new { message = "Logged out" });
-    }
-
-    [HttpDelete]
-    public async Task<IActionResult> Delete(string email)
-    {
-        var user = await _userManager.FindByEmailAsync(email);
-
-        if (user == null)
-        {
-            return NotFound();
-        }
-
-        var result = await _userManager.DeleteAsync(user);
-
-        if (!result.Succeeded)
-        {
-            return BadRequest(result.Errors.Select(e => e.Description));
-        }
-
-        return NoContent();
     }
 
     private string CreateToken(User user)
@@ -209,29 +136,5 @@ public class AuthController : ControllerBase
         var randomDigits = random.Next(10000, 99999);
 
         return $"{basePart}{randomDigits}";
-    }
-
-    private ClaimsPrincipal? ValidateToken(string token)
-    {
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]!);
-
-        try
-        {
-            var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-            {
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key)
-            }, out SecurityToken validatedToken);
-
-            return principal;
-        }
-        catch
-        {
-            return null;
-        }
     }
 }
