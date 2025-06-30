@@ -3,6 +3,8 @@
 /server/obj/
 /server/disccc.db
 /server/Migrations/
+/server/**/*.db-wal
+/server/**/*.db-shm
 
 # client
 /client/node_modules/
