@@ -3,8 +3,8 @@ import { useAppSelector } from "../app/hooks";
 import type { ReactElement } from "react";
 
 const ProtectedRoute = ({ children }: { children: ReactElement }) => {
-  const user = useAppSelector((state) => state.auth.user);
-  const loading = useAppSelector((state) => state.auth.loading);
+  const user = useAppSelector((state) => state.user.user);
+  const loading = useAppSelector((state) => state.user.loading);
 
   if (loading) return <div>Loading...</div>;
 

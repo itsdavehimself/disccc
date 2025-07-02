@@ -1,8 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import type { User } from "../../types/User";
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
-export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
-  const response = await fetch(`${apiUrl}/api/auth/me`, {
+export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
+  const response = await fetch(`${apiUrl}/api/user/me`, {
     credentials: "include",
   });
 
@@ -10,24 +11,20 @@ export const fetchUser = createAsyncThunk("auth/fetchUser", async () => {
   return await response.json();
 });
 
-interface AuthState {
-  user: {
-    email: string;
-    username: string;
-    firstSignIn: boolean;
-  } | null;
+interface UserState {
+  user: User | null;
   loading: boolean;
   error: string | null;
 }
 
-const initialState: AuthState = {
+const initialState: UserState = {
   user: null,
   loading: true,
   error: null,
 };
 
-const authSlice = createSlice({
-  name: "auth",
+const userSlice = createSlice({
+  name: "user",
   initialState,
   reducers: {
     logout: (state) => {
@@ -53,5 +50,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
-export default authSlice.reducer;
+export const { logout } = userSlice.actions;
+export default userSlice.reducer;

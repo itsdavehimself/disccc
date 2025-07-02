@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { useAppDispatch } from "../app/hooks";
-import { fetchUser } from "../app/slices/authSlice";
+import { fetchUser } from "../app/slices/userSlice";
 import { Link } from "react-router";
 import ValidatedInput from "./ValidatedInput";
 

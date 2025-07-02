@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { logout } from "../app/slices/authSlice";
+import { logout } from "../app/slices/userSlice";
 import Onboarding from "../components/Onboarding/Onboarding";
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const apiUrl = import.meta.env.VITE_API_BASE_URL;
-  const user = useAppSelector((state) => state.auth.user);
+  const user = useAppSelector((state) => state.user.user);
 
   const handleLogout = async (): Promise<void> => {
     await fetch(`${apiUrl}/api/auth/logout`, {

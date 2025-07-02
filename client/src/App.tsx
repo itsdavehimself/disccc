@@ -5,7 +5,7 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import { useAppDispatch } from "./app/hooks";
 import { useEffect } from "react";
-import { fetchUser } from "./app/slices/authSlice";
+import { fetchUser } from "./app/slices/userSlice";
 import Dashboard from "./containers/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
