@@ -39,9 +39,11 @@ public class UserController : ControllerBase
 
       return Ok(new
       {
-          email = user.Email,
-          username = user.UserName,
-          user.firstSignIn
+        email = user.Email,
+        username = user.UserName,
+        user.firstSignIn,
+        user.WeatherPreferences,
+        user.PreferredDays
       });
   }
 
@@ -82,7 +84,9 @@ public class UserController : ControllerBase
 
     user.WeatherPreferences = new WeatherPreferences
     {
-      PreferredConditions = request.PreferredConditions,
+      AllowRain = request.AllowRain,
+      AllowSnow = request.AllowSnow,
+      CloudCoverPreference = request.CloudCoverPreference,
       MaxTempF = request.MaxTempF,
       MinTempF = request.MinTempF,
       MaxWindSpeedMph = request.MaxWindSpeedMph
