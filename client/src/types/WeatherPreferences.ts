@@ -4,5 +4,4 @@ export type WeatherPreferences = {
   maxWindSpeedMph: number;
   allowRain: boolean;
   allowSnow: boolean;
-  CloudCoverPreference: string;
 };

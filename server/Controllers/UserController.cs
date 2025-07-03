@@ -86,7 +86,6 @@ public class UserController : ControllerBase
     {
       AllowRain = request.AllowRain,
       AllowSnow = request.AllowSnow,
-      CloudCoverPreference = request.CloudCoverPreference,
       MaxTempF = request.MaxTempF,
       MinTempF = request.MinTempF,
       MaxWindSpeedMph = request.MaxWindSpeedMph

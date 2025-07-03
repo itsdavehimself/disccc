@@ -7,5 +7,4 @@ public class UpdateWeatherPrefrencesDto
   public int MaxWindSpeedMph { get; set; }
   public bool AllowRain { get; set; }
   public bool AllowSnow { get; set; }
-  public string CloudCoverPreference { get; set; } = string.Empty;
 }

@@ -2,7 +2,8 @@ export const OnboardingSteps = {
   Username: "Username",
   Temperature: "Temperature",
   Wind: "Wind",
-  DaysOfTheWeek: "Days of the Week",
+  Precipitation: "Precipitation",
+  DaysOfTheWeek: "DaysOfTheWeek",
 } as const;
 
 export type OnboardingSteps = keyof typeof OnboardingSteps;
