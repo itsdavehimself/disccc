@@ -31,6 +31,11 @@ const userSlice = createSlice({
       state.user = null;
       state.loading = false;
     },
+    updateFirstSignIn: (state) => {
+      if (state.user) {
+        state.user.firstSignIn = false;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -50,5 +55,5 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout } = userSlice.actions;
+export const { logout, updateFirstSignIn } = userSlice.actions;
 export default userSlice.reducer;

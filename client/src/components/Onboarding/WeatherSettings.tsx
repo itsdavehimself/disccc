@@ -77,6 +77,7 @@ const WeatherSettings: React.FC<WeatherSettingsProps> = ({ step, setStep }) => {
           precipitation={precipitation}
           setPrecipitation={setPrecipitation}
           handleSubmit={updateWeatherPreferences}
+          setStep={setStep}
           error={error}
         />
       )}

@@ -5,6 +5,9 @@ import SubmitButton from "../SubmitButton";
 import ValidatedInput from "../ValidatedInput";
 import { useForm } from "react-hook-form";
 import type { SubmitHandler } from "react-hook-form";
+import OnboardingModal from "./OnboardingModal";
+import DoLaterButton from "../DoLaterButton";
+import { useSkipOnboarding } from "../../hooks/useSkipOnboarding";
 
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -20,6 +23,7 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ setStep }) => {
   const user = useAppSelector((state) => state.user.user);
   const [usernameInput, setUsernameInput] = useState(user?.username || "");
   const [error, setError] = useState<string | null>(null);
+  const { skip, error: skipError } = useSkipOnboarding();
 
   const {
     register,
@@ -79,52 +83,48 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ setStep }) => {
   };
 
   return (
-    <div className="flex flex-col bg-white w-4/5 rounded-lg drop-shadow-md gap-8 py-3 px-4">
-      <div className="flex flex-col">
-        <h3 className="text-lg font-semibold">Pick a username</h3>
-        <p className="text-sm text-gray-500">
-          This will show up in group rounds and invites.
-        </p>
-      </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-        <div className="flex flex-col w-full">
-          <ValidatedInput
-            register={register("username", {
-              required: "Please enter your username",
-            })}
-            error={errors.username}
-            placeholder="Username"
-            type="text"
-            value={usernameInput}
-            onChange={(e) => setUsernameInput(e.target.value)}
-          />
-          <div className="self-start min-h-5 text-error-red text-sm">
-            {error === "Invalid credentials" ? (
-              <p>Something doesn't look right. Check your credentials.</p>
-            ) : error ? (
-              <div className="self-start text-error-red text-sm space-y-1">
-                {error.split(",").map((msg, idx) => (
-                  <p key={idx}>{msg.trim()}</p>
-                ))}
-              </div>
-            ) : errors.username?.message ? (
-              <p>{errors.username.message}</p>
-            ) : null}
+    <OnboardingModal
+      title="Pick a username"
+      subtitle="This will show up in group rounds and invites"
+      skip={skip}
+      children={
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+          <div className="flex flex-col w-full">
+            <ValidatedInput
+              register={register("username", {
+                required: "Please enter your username",
+              })}
+              error={errors.username}
+              placeholder="Username"
+              type="text"
+              value={usernameInput}
+              onChange={(e) => setUsernameInput(e.target.value)}
+            />
+            <div className="self-start min-h-5 text-error-red text-sm">
+              {error === "Invalid credentials" ? (
+                <p>Something doesn't look right. Check your credentials.</p>
+              ) : error || skipError ? (
+                <div className="self-start text-error-red text-sm space-y-1">
+                  {(error || skipError)?.split(",").map((msg, idx) => (
+                    <p key={idx}>{msg.trim()}</p>
+                  ))}
+                </div>
+              ) : errors.username?.message ? (
+                <p>{errors.username.message}</p>
+              ) : null}
+            </div>
           </div>
-        </div>
-        <div className="flex flex-col gap-2">
-          <SubmitButton
-            label={user?.username === usernameInput ? "Next" : "Update"}
-          />
-          <button
-            type="button"
-            className="text-sm py-1 px-3 hover:cursor-pointer"
-          >
-            I'll do it later
-          </button>
-        </div>
-      </form>
-    </div>
+          <div className="flex flex-col gap-2">
+            <SubmitButton
+              label={user?.username === usernameInput ? "Next" : "Update"}
+            />
+            <DoLaterButton
+              action={() => setStep(OnboardingSteps.Temperature)}
+            />
+          </div>
+        </form>
+      }
+    />
   );
 };
 

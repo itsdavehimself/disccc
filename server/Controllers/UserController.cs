@@ -80,7 +80,7 @@ public class UserController : ControllerBase
     if (user is null) return Unauthorized();
 
     if (request == null)
-    return BadRequest(new { message = "Request cannot be null" });
+    return BadRequest(new { message = "Request cannot be empty" });
 
     user.WeatherPreferences = new WeatherPreferences
     {
@@ -94,7 +94,43 @@ public class UserController : ControllerBase
     await _userManager.UpdateAsync(user);
     return Ok(new { message = "Weather preferences updated" });
   }
-  
+
+  [Authorize]
+  [HttpPatch("day-preferences")]
+  public async Task<IActionResult> UpdateDayPreferences(UpdateDayPreferencesDto request)
+  {
+    var email = User.FindFirst(ClaimTypes.Email)?.Value;
+    if (email is null) return Unauthorized();
+
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user is null) return Unauthorized();
+
+    if (request is null)
+      return BadRequest(new { message = "Request cannot be empty" });
+
+    user.PreferredDays = request.Days;
+    user.firstSignIn = false;
+
+    await _userManager.UpdateAsync(user);
+    return Ok(new { message = "Preferred days updated" });
+
+  }
+
+  [Authorize]
+  [HttpPost("first-sign-in")]
+  public async Task<IActionResult> UpdateFirstSignIn()
+  {
+    var email = User.FindFirst(ClaimTypes.Email)?.Value;
+    if (email is null) return Unauthorized();
+
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user is null) return Unauthorized();
+
+    user.firstSignIn = false;
+
+    await _userManager.UpdateAsync(user);
+    return Ok(new { message = "User onboarding completed" });
+  }
 
   [HttpDelete]
   public async Task<IActionResult> Delete(string email)
