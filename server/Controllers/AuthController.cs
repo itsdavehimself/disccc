@@ -75,9 +75,9 @@ public class AuthController : ControllerBase
         if (!isValid)
             return BadRequest(new {message = "Invalid credentials"});
 
-        if (user.firstSignIn)
+        if (user.FirstSignIn)
         {
-            user.firstSignIn = false;
+            user.FirstSignIn = false;
             await _userManager.UpdateAsync(user);
         }
 
