@@ -46,7 +46,7 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ setStep }) => {
 
     if (user?.username === data.username) {
       setError(null);
-      setStep(OnboardingSteps.Temperature);
+      setStep(OnboardingSteps.HomeCourse);
       return;
     }
 
@@ -70,7 +70,7 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ setStep }) => {
       }
 
       setError(null);
-      setStep(OnboardingSteps.Temperature);
+      setStep(OnboardingSteps.HomeCourse);
     } catch (err) {
       if (err instanceof Error) {
         console.error("Network or server error:", err.message);
@@ -118,9 +118,7 @@ const UpdateUsername: React.FC<UpdateUsernameProps> = ({ setStep }) => {
             <SubmitButton
               label={user?.username === usernameInput ? "Next" : "Update"}
             />
-            <DoLaterButton
-              action={() => setStep(OnboardingSteps.Temperature)}
-            />
+            <DoLaterButton action={() => setStep(OnboardingSteps.HomeCourse)} />
           </div>
         </form>
       }

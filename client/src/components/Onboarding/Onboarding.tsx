@@ -3,6 +3,7 @@ import UpdateUsername from "./UpdateUsername";
 import { OnboardingSteps } from "../../types/OnboardingSteps";
 import WeatherSettings from "./WeatherSettings";
 import SelectDays from "./SelectDays";
+import HomeCourse from "./HomeCourse";
 
 const Onboarding: React.FC = () => {
   const [step, setStep] = useState<OnboardingSteps>(OnboardingSteps.Username);
@@ -12,6 +13,7 @@ const Onboarding: React.FC = () => {
       {step === OnboardingSteps.Username && (
         <UpdateUsername setStep={setStep} />
       )}
+      {step === OnboardingSteps.HomeCourse && <HomeCourse setStep={setStep} />}
       {(step === OnboardingSteps.Temperature ||
         step === OnboardingSteps.Wind ||
         step === OnboardingSteps.Precipitation) && (

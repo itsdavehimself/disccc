@@ -1,3 +1,4 @@
+import type { Course } from "./Course";
 import type { WeatherPreferences } from "./WeatherPreferences";
 
 export type User = {
@@ -6,4 +7,5 @@ export type User = {
   username: string;
   preferredDays: string[];
   weatherPreferences: WeatherPreferences;
+  homeCourse: Course;
 };

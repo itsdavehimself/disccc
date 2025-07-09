@@ -23,14 +23,14 @@ public class AppDbContext : IdentityDbContext<User>
         var weatherConverter = new ValueConverter<WeatherInfo, string>(
             v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
             v => JsonSerializer.Deserialize<WeatherInfo>(v, (JsonSerializerOptions)null) ?? new());
-            
+
         var daysConverter = new ValueConverter<List<DayOfWeek>, string>(
             v => JsonSerializer.Serialize(v, (JsonSerializerOptions)null),
             v => JsonSerializer.Deserialize<List<DayOfWeek>>(v, (JsonSerializerOptions)null) ?? new());
 
-    modelBuilder.Entity<User>()
-        .Property(u => u.PreferredDays)
-        .HasConversion(daysConverter);
+        modelBuilder.Entity<User>()
+            .Property(u => u.PreferredDays)
+            .HasConversion(daysConverter);
 
         modelBuilder.Entity<Round>()
             .Property(r => r.Players)
@@ -39,7 +39,9 @@ public class AppDbContext : IdentityDbContext<User>
         modelBuilder.Entity<Round>()
             .Property(r => r.Weather)
             .HasConversion(weatherConverter);
-            
+
         modelBuilder.Entity<User>().OwnsOne(u => u.WeatherPreferences);
+        
+        modelBuilder.Entity<User>().OwnsOne(u => u.HomeCourse);
     }
 }

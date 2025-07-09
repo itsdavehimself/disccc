@@ -1,5 +1,6 @@
 export const OnboardingSteps = {
   Username: "Username",
+  HomeCourse: "HomeCourse",
   Temperature: "Temperature",
   Wind: "Wind",
   Precipitation: "Precipitation",

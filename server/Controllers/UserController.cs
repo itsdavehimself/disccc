@@ -41,9 +41,10 @@ public class UserController : ControllerBase
       {
         email = user.Email,
         username = user.UserName,
-        user.firstSignIn,
+        user.FirstSignIn,
         user.WeatherPreferences,
-        user.PreferredDays
+        user.PreferredDays,
+        user.HomeCourse
       });
   }
 
@@ -109,11 +110,37 @@ public class UserController : ControllerBase
       return BadRequest(new { message = "Request cannot be empty" });
 
     user.PreferredDays = request.Days;
-    user.firstSignIn = false;
+    user.FirstSignIn = false;
 
     await _userManager.UpdateAsync(user);
     return Ok(new { message = "Preferred days updated" });
 
+  }
+
+  [Authorize]
+  [HttpPatch("home-course")]
+  public async Task<IActionResult> UpdateHomeCourse(HomeCourseDto request)
+  {
+    var email = User.FindFirst(ClaimTypes.Email)?.Value;
+    if (email is null) return Unauthorized();
+
+    var user = await _userManager.FindByEmailAsync(email);
+    if (user is null) return Unauthorized();
+
+    if (request is null)
+      return BadRequest(new { message = "Request cannot be empty" });
+
+    user.HomeCourse = new HomeCourse
+    {
+      Name = request.Name,
+      City = request.City,
+      State = request.State,
+      Latitude = request.Latitude,
+      Longitude = request.Longitude
+    };
+
+    await _userManager.UpdateAsync(user);
+    return Ok(new { message = "Home course updated" });
   }
 
   [Authorize]
@@ -126,7 +153,7 @@ public class UserController : ControllerBase
     var user = await _userManager.FindByEmailAsync(email);
     if (user is null) return Unauthorized();
 
-    user.firstSignIn = false;
+    user.FirstSignIn = false;
 
     await _userManager.UpdateAsync(user);
     return Ok(new { message = "User onboarding completed" });
